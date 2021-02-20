@@ -1,0 +1,3 @@
+
+[pis]
+pi0 ansible_host=xxx.xxx.xx.x ansible_user=pi

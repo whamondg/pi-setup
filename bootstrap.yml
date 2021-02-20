@@ -1,0 +1,16 @@
+- hosts: pis
+  become: true
+
+  roles:
+    - pi_base
+
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Hostname"
+      private: no
+    - name: "ipaddress"
+      prompt: "Static IPv4 address"
+      private: no
+    - name: "routers"
+      prompt: "Routers (comma separated)"
+      private: no

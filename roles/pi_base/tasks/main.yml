@@ -1,0 +1,40 @@
+---
+
+- name: Set the hostname
+  become: yes
+  command: hostnamectl set-hostname "{{ hostname }}"
+
+- name: Update /etc/hosts with new hostname
+  become: yes
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "^127.0.1.1\\s*raspberrypi$"
+    line: "127.0.1.1\t{{ hostname }}"
+    state: present
+
+- name: Configure static IP in  /etc/dhcpcd.conf
+  become: yes
+  lineinfile:
+    dest:  /etc/dhcpcd.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  with_items:
+    - { regexp: "^interface eth0$", line: "interface eth0" }
+    - { regexp: "^static ip_address", line: "static ip_address={{ ipaddress }}" }
+    - { regexp: "^static routers", line: "static routers={{ routers }}" }
+    - { regexp: "^static domain_name_servers", line: "static domain_name_servers={{ routers }}" }
+  notify: Reboot and wait for restart
+
+- name: Update apt package list
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+    cache_valid_time: 3600
+
+- name: Update packages to the latest version
+  apt:
+    upgrade: dist
+    force_apt_get: yes
+  notify: Reboot and wait for restart
+
